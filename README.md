@@ -1,6 +1,6 @@
 # Context Manager
 
-A personal knowledge system built on interlinked markdown documents. Claude harvests signal from your email, Slack, and other sources, distills it into a structured knowledge store you can browse like a wiki, and carries that context into every conversation.
+A personal or team knowledge system built on interlinked markdown documents. Claude harvests signal from your email, Slack, and any MCP connected source, distills it into a structured knowledge store you can browse like a wiki, and carries that context into every conversation.
 
 ---
 
@@ -8,11 +8,11 @@ A personal knowledge system built on interlinked markdown documents. Claude harv
 
 Two tiers:
 
-**Raw sources** — Gmail, Slack, databases. Where information originates. Claude reads these periodically but never stores raw content.
+**Raw sources** — Gmail, Slack, databases or any connected MCP source. Where information originates. Claude reads these periodically but never stores raw content.
 
-**Knowledge store** — GitHub, Notion, Confluence, or Google Drive. Where curated insights live as linked markdown files. Readable by both Claude and humans.
+**Knowledge store** — GitHub, Notion, Confluence, Sharepoint or Google Drive. Where curated insights live as linked markdown files. Readable by both Claude and humans.
 
-`Harvest ideas` is the bridge: it reads your raw sources, extracts what matters, and asks you to review before writing anything to the store.
+`Harvest` is the bridge: it reads your raw sources, extracts what matters, and asks you to review before writing anything to the store.
 
 ---
 
@@ -63,7 +63,7 @@ In the Context Manager project, go to **Project files** and upload all six of th
 
 Open a conversation in the Context Manager project and type:
 
-> Initialize context manager
+> Initialize
 
 Claude will ask you about six questions — which backend to use for the knowledge store, which sources to harvest from, and a few preferences. It then scaffolds your store and produces a `context-manager-setup.md` file.
 
@@ -89,7 +89,7 @@ Claude interviews you about the project — what it is, who's involved, decision
 
 Once a week, type:
 
-> Harvest ideas
+> Harvest
 
 Claude scans your connected sources (email, Slack, etc.) for anything worth adding to the knowledge store, surfaces candidates grouped by type, and asks you to accept, reject, or refine each one before writing anything. Substantive entries — decisions with real context, meeting records, research threads — get their own linked documents. Everything else gets added inline.
 
