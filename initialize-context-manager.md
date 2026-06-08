@@ -1,5 +1,5 @@
 ---
-description: Interview the user, scaffold the knowledge store, and produce the Context Manager setup document plus the Project instructions pointer. The setup document is uploaded to the Context Manager Claude Project's files; the pointer goes in its instructions field.
+description: Connect to an existing knowledge store or set up a new one. For new stores: interview the user, scaffold the store, and produce the setup document plus the Project instructions pointer. For existing stores: accept the setup document from a colleague and output the pointer only.
 ---
 
 ## Step 1: Inventory available resources
@@ -12,12 +12,8 @@ Check which MCPs are currently connected and classify them into two tiers:
 - Gmail
 - Slack (note any configured channels)
 - Outlook / Teams
-- Google Drive (documents modified since last harvest)
-- Notion (pages modified since last harvest)
 - Database connections (jdbc or similar)
 - Any other conversational or record-keeping MCPs
-
-Note: Google Drive and Notion can each serve as both Tier 1 source and Tier 2 backend. When a source uses the same backend as the store, the harvest excludes all content at or under the store root URI automatically.
 
 **Tier 2 — Knowledge store backends** (curated insights live here; Claude reads and writes these):
 - GitHub
@@ -27,11 +23,30 @@ Note: Google Drive and Notion can each serve as both Tier 1 source and Tier 2 ba
 - SharePoint
 - Local file mount (Claude Desktop only)
 
-Note which are connected and which are not. You will use this inventory to populate the setup form in Step 2.
+Note which are connected and which are not. You will use this inventory to populate the setup form in Step 3.
 
 ---
 
-## Step 2: Render the setup form
+## Step 2: New store or existing store?
+
+Ask the user:
+
+> "Are you setting up a **new** knowledge store, or connecting to an **existing** one?
+>
+> - **New store** — I'll walk you through setup and create the store.
+> - **Existing store** — Someone on your team has already set this up. Ask them for their `context-manager-setup.md` and upload it here."
+
+**If existing store:** wait for the user to upload `context-manager-setup.md`. Once received:
+
+1. Read the file and extract the `Store index:` URI.
+2. Attempt to read the store index from that URI to confirm it resolves. If it fails, report the error and stop — the file may be stale or the MCP may not be connected.
+3. Skip to Step 5. Do not run Steps 3 or 4.
+
+**If new store:** proceed to Step 3.
+
+---
+
+## Step 3: Render the setup form
 
 Render a single setup form widget in the conversation using the resource inventory from Step 1. Do not ask the setup questions conversationally — the form is the only intake interface for this step.
 
@@ -41,7 +56,7 @@ Render a single setup form widget in the conversation using the resource invento
 
 **Store root location** (text input): label "Store root path or location". Placeholder text should match the selected backend's URI format (e.g. `github:org/knowledge-base/main/README.md`, `notion:page-id`). Update the placeholder dynamically when the backend selection changes if possible; otherwise note the expected format next to the field.
 
-**Default harvest sources** (checkbox group): list every detected Tier 1 source with checkboxes. Check all connected sources by default. For any source that shares a backend with the selected Tier 2 store (Google Drive or Notion), display an inline note beside that checkbox: "Store subtree excluded automatically." Include a note below the group: "Per-project overrides are always available."
+**Default harvest sources** (checkbox group): list every detected Tier 1 source with checkboxes. Check all connected sources by default. Include a note below the group: "Per-project overrides are always available."
 
 **Harvest frequency** (radio group): Weekly (default), Bi-weekly, Monthly.
 
@@ -70,13 +85,13 @@ Global rules:
   [rules text, or "None"]
 ```
 
-When the `sendPrompt()` message arrives, treat it as the complete interview answers and proceed to Step 3.
+When the `sendPrompt()` message arrives, treat it as the complete interview answers and proceed to Step 4.
 
 **If no Tier 2 backend is connected:** render the form with all backend options disabled. Display a notice above the form explaining which MCPs to connect and where to find them in Claude.ai settings. Do not proceed until the user reconnects and re-runs the workflow.
 
 ---
 
-## Step 3: Scaffold the knowledge store
+## Step 4: Scaffold the knowledge store
 
 Using the backend and root location from the submitted form, create the store index now — before generating the document.
 
@@ -92,9 +107,9 @@ Record the resolved store index URI — you will need it in the document and the
 
 ---
 
-## Step 4: Generate the setup document
+## Step 5: Generate the setup document
 
-Produce a complete, fully populated markdown document. No blanks, no placeholders. Every field reflects what was learned in Steps 1–3.
+Produce a complete, fully populated markdown document. No blanks, no placeholders. Every field reflects what was learned in Steps 1–4.
 
 The document should contain:
 
@@ -178,7 +193,7 @@ relevant MCP in Claude.ai and updating this section.
 
 ---
 
-## Step 5: Output the deliverables
+## Step 6: Output the deliverables
 
 Present two things to the user.
 
@@ -210,3 +225,7 @@ Then tell the user:
 > In the Context Manager Project, go to **Project files** and upload `context-manager-setup.md`.
 >
 > Once that's in place, run **"bootstrap-project"** from the Context Manager Project for each project you want to register. Then run **"harvest-context"** weekly — from the Context Manager to harvest all projects at once, or from any individual project to harvest just that one.
+
+**If connecting to an existing store** (arrived here from Step 2): skip Deliverable 1. Output only the pointer, and tell the user:
+
+> Paste the block above into the Context Manager Project's instructions field. The store is already set up — your `context-manager-setup.md` is already in Project files. Run **"bootstrap-project"** to register new projects, or **"harvest-context"** to start harvesting.
