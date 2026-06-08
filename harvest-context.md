@@ -77,7 +77,11 @@ In manager mode, consolidate each project independently if its threshold is reac
 
 For each source in the Sources list, retrieve content since the `last harvested` date (or last 7 days if no date is set). Apply the search terms from Step 2.
 
+**Dual-role exclusion**: if a source uses the same backend as the Tier 2 knowledge store, exclude all content at or under the store root URI before querying. The store root URI is in the setup document (`## Knowledge Store` → `Store index:`). Never harvest from the knowledge store itself — doing so would surface already-curated entries as new candidates.
+
 **Conversational sources** (gmail, slack, outlook, teams): search for threads or messages containing the search terms. Exclude calendar events, auto-replies, and already-processed threads. For Slack, scope strictly to the specified channel.
+
+**Wiki and document sources** (notion, gdrive): search for pages or files modified within the harvest window that contain any of the search terms. For Notion: use `search` scoped to the workspace, then apply the dual-role exclusion by filtering out any result whose ancestor chain includes the store root page ID. For Google Drive: use `search_files` filtered by modification date, then apply the dual-role exclusion by filtering out any file whose path falls under the store root folder.
 
 **Database sources** (`jdbc:tablename`): query text-bearing columns filtered to rows created or modified within the harvest window.
 

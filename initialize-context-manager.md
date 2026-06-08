@@ -12,8 +12,12 @@ Check which MCPs are currently connected and classify them into two tiers:
 - Gmail
 - Slack (note any configured channels)
 - Outlook / Teams
+- Google Drive (documents modified since last harvest)
+- Notion (pages modified since last harvest)
 - Database connections (jdbc or similar)
 - Any other conversational or record-keeping MCPs
+
+Note: Google Drive and Notion can each serve as both Tier 1 source and Tier 2 backend. When a source uses the same backend as the store, the harvest excludes all content at or under the store root URI automatically.
 
 **Tier 2 — Knowledge store backends** (curated insights live here; Claude reads and writes these):
 - GitHub
@@ -37,7 +41,7 @@ Render a single setup form widget in the conversation using the resource invento
 
 **Store root location** (text input): label "Store root path or location". Placeholder text should match the selected backend's URI format (e.g. `github:org/knowledge-base/main/README.md`, `notion:page-id`). Update the placeholder dynamically when the backend selection changes if possible; otherwise note the expected format next to the field.
 
-**Default harvest sources** (checkbox group): list every detected Tier 1 source with checkboxes. Check all connected sources by default. Include a note below the group: "Per-project overrides are always available."
+**Default harvest sources** (checkbox group): list every detected Tier 1 source with checkboxes. Check all connected sources by default. For any source that shares a backend with the selected Tier 2 store (Google Drive or Notion), display an inline note beside that checkbox: "Store subtree excluded automatically." Include a note below the group: "Per-project overrides are always available."
 
 **Harvest frequency** (radio group): Weekly (default), Bi-weekly, Monthly.
 
