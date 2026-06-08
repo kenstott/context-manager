@@ -104,27 +104,53 @@ Deduplicate across sources. Discard any candidate that restates a Global Rule al
 
 ## Step 6: Present candidates for review
 
-Show candidates grouped by category. For each, display: category, statement, source, confidence.
+Render a candidate review widget in the conversation. Do not present candidates as prose or solicit responses conversationally — the widget is the only review interface for this step.
 
-Offer three actions:
-- **Accept** — proceed to placement decision below
-- **Reject** — discard
-- **Refine** — ask a clarifying question, then accept the refined version
+**Widget structure:**
 
-**Placement decision for accepted entries:**
+One card per candidate in extraction order. Each card shows:
+- Category badge (color-coded) and confidence badge
+- Statement text
+- Source and date in monospace
+- Three action buttons: **accept**, **reject**, **refine**
 
-For backends that support linked docs (GitHub, Notion, Confluence), ask for each accepted entry:
+**Per-card behavior after an action is selected:**
 
-> "Add inline to context.md, or create a linked document?"
+- **Accept** → highlight card; reveal a placement toggle: **Inline** or **Linked doc**
+  - Default to **Inline**
+  - Pre-select **Linked doc** when the entry warrants one — see `knowledge-store-conventions.md` → When to create a linked doc:
+    - A Decision with more than one sentence of reasoning → suggest ADR
+    - A block of meeting content worth preserving → suggest meeting note
+    - A research finding that would bloat context.md → suggest research note
+  - Suppress the placement toggle entirely for backends that don't support linked docs (Google Drive, file mounts) — always inline for those
+- **Reject** → dim and strike through the card; no further input needed
+- **Refine** → reveal a clarification note textarea; no placement choice needed (Claude handles refinement and placement after submission)
+- Any action button toggles off when clicked again, returning the card to unreviewed state
 
-Suggest a linked doc when (see `knowledge-store-conventions.md` → When to create a linked doc):
-- A Decision has more than one sentence of reasoning → offer to create an ADR
-- A block of meeting content is worth preserving → offer to create a meeting note
-- A research finding would bloat context.md → offer to create a research note
+**Submit button:**
+- Disabled until every card has been actioned
+- On submit: fire `sendPrompt()` with this structured format:
 
-For Google Drive and file mounts, always add inline.
+```
+Harvest review submitted — N candidates reviewed.
 
-In manager mode, present candidates per project before moving to the next.
+ACCEPTED — inline (N):
+  • [Category] Statement  [Source · Date]
+
+ACCEPTED — linked doc (N):
+  • [Category] Statement  [Source · Date]
+
+REFINE (N):
+  • [Category] Statement
+    Note: [clarification text, if provided]
+
+REJECTED (N):
+  • [Category] Statement
+```
+
+When the `sendPrompt()` message arrives, parse it and proceed directly to Step 7. Do not re-confirm in prose.
+
+In manager mode, render one widget per project batch before moving to the next project.
 
 ---
 

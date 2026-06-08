@@ -23,37 +23,58 @@ Check which MCPs are currently connected and classify them into two tiers:
 - SharePoint
 - Local file mount (Claude Desktop only)
 
-Note which are connected and which are not. You will present this inventory to the user during the interview.
+Note which are connected and which are not. You will use this inventory to populate the setup form in Step 2.
 
 ---
 
-## Step 2: Interview
+## Step 2: Render the setup form
 
-Ask the following questions one at a time. Wait for each answer before continuing.
+Render a single setup form widget in the conversation using the resource inventory from Step 1. Do not ask the setup questions conversationally — the form is the only intake interface for this step.
 
-**Question 1**
-Present the detected Tier 2 backends. Ask which one they want to use for the knowledge store. If more than one is connected, ask which they prefer — recommend GitHub or Notion/Confluence for their native markdown support and human browsability. If none are connected that support rich linking, note the limitation and let them choose from what is available.
+**Form fields:**
 
-**Question 2**
-Where within that backend should the store root live? Ask for a path or location — for example, a GitHub repo name, a Notion parent page, a Google Drive folder path. Suggest a dedicated location rather than mixing with other files (e.g. a repo named `knowledge-base`, a Notion page named "Knowledge Store").
+**Knowledge store backend** (radio group): list every Tier 2 backend. Mark connected ones as selectable; mark unconnected ones as disabled with a "not connected" label. Pre-select the recommended option (GitHub or Notion/Confluence if available; otherwise the best connected option). Include a one-line description for each backend drawn from `storage-backends.md`.
 
-**Question 3**
-Present the detected Tier 1 sources. Which ones should be harvested by default across all projects? They can always add or remove sources per project later — this sets the starting default.
+**Store root location** (text input): label "Store root path or location". Placeholder text should match the selected backend's URI format (e.g. `github:org/knowledge-base/main/README.md`, `notion:page-id`). Update the placeholder dynamically when the backend selection changes if possible; otherwise note the expected format next to the field.
 
-**Question 4**
-How often should harvests run? Weekly is the default. Any reason to go more or less frequent?
+**Default harvest sources** (checkbox group): list every detected Tier 1 source with checkboxes. Check all connected sources by default. Include a note below the group: "Per-project overrides are always available."
 
-**Question 5**
-What consolidation threshold — the number of accepted harvest entries that triggers a cleanup pass? Default is 12. Higher means less frequent consolidation; lower means tighter upkeep.
+**Harvest frequency** (radio group): Weekly (default), Bi-weekly, Monthly.
 
-**Question 6**
-Are there any rules that apply globally — across every project in this store? Things like security constraints, compliance requirements, preferred tools, communication norms. These will appear in a Global Rules section that every project inherits.
+**Consolidation threshold** (number input): default 12. Include a brief inline note: "Higher = less frequent cleanup passes."
+
+**Global rules** (textarea): label "Global rules (optional)". Placeholder: `e.g. Never store PII in the knowledge store. Use metric units only.` Leave empty by default.
+
+An **Initialize →** button at the bottom. Disable it until the backend is selected and the store root field is non-empty.
+
+**On submit:** fire `sendPrompt()` with this structured format:
+
+```
+Context manager setup submitted.
+
+Backend: [selected backend]
+Store root: [entered value]
+
+Default harvest sources:
+  - [source]: enabled
+  - [source]: disabled
+
+Harvest frequency: [selection]
+Consolidation threshold: [N]
+
+Global rules:
+  [rules text, or "None"]
+```
+
+When the `sendPrompt()` message arrives, treat it as the complete interview answers and proceed to Step 3.
+
+**If no Tier 2 backend is connected:** render the form with all backend options disabled. Display a notice above the form explaining which MCPs to connect and where to find them in Claude.ai settings. Do not proceed until the user reconnects and re-runs the workflow.
 
 ---
 
 ## Step 3: Scaffold the knowledge store
 
-Using the backend and root location from the interview, create the store index now — before generating the document.
+Using the backend and root location from the submitted form, create the store index now — before generating the document.
 
 Write the store index (Template 4 from `project-instructions-template.md`) to the store root. At this point the table is empty; projects will be added by `bootstrap-project`.
 
@@ -180,18 +201,8 @@ Output the following block for the user to paste into the Context Manager Claude
 
 Then tell the user:
 
-**If this is a first-time setup:**
-
-> **Two manual steps required:**
->
-> 1. Go to claude.ai and create a new Project named **Context Manager**. In the **"What would you like this project to achieve?"** field, paste the pointer above.
->
-> 2. In that same Project, go to **Project files** and upload `context-manager-setup.md`.
->
-> Once both are in place, run **"bootstrap-project"** from the Context Manager Project for each project you want to register. Then run **"harvest-context"** weekly — from the Context Manager to harvest all projects at once, or from any individual project to harvest just that one.
-
-**If this is a re-initialization (the Context Manager Project already exists):**
-
 > **One manual step required:**
 >
-> Go to the **Context Manager** Project on claude.ai, open **Project files**, and replace the existing `context-manager-setup.md` with the new one. The Project instructions pointer does not need to change.
+> In the Context Manager Project, go to **Project files** and upload `context-manager-setup.md`.
+>
+> Once that's in place, run **"bootstrap-project"** from the Context Manager Project for each project you want to register. Then run **"harvest-context"** weekly — from the Context Manager to harvest all projects at once, or from any individual project to harvest just that one.
