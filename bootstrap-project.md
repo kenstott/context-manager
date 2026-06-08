@@ -133,3 +133,19 @@ Then tell the user:
 > Your knowledge store now has a browsable project space at `[project-folder-uri]`. You can add documents there directly or let `harvest-context` grow it over time.
 >
 > Run **"harvest-context"** after your first week of activity — it will pick up where bootstrap left off.
+
+---
+
+## Step 7: Clarify what the dedicated Claude Project is for
+
+After outputting the pointer, make sure the user understands that creating a dedicated Claude Project for this topic is **optional**, and explain the distinction:
+
+> The knowledge store entry you just created is what matters for harvesting. Harvests run in two modes: from the **Context Manager** project, manager mode iterates every project registered in the store index — so this project will be harvested whether or not a dedicated Claude Project for it ever exists. A separate Claude Project is **not** required for harvesting.
+>
+> What a dedicated Claude Project for this topic *does* buy you is a workspace where this context loads automatically on every turn, so you can ask questions, draft content, and build plans about the topic without re-establishing context each time. That is the pointer's entire job — it tells Claude to read the store index and this project's context before answering.
+>
+> So:
+> - **Want to harvest only?** Skip the dedicated project. Run `harvest-context` from the Context Manager and it covers this project automatically.
+> - **Want a thinking/planning space for this topic?** Create the Claude Project and paste the pointer. Anything you ask there is then grounded in the context file.
+>
+> The two are not mutually exclusive, and neither blocks the other. The store entry exists and is harvestable as soon as Step 5 completes.

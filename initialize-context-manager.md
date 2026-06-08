@@ -180,10 +180,18 @@ Output the following block for the user to paste into the Context Manager Claude
 
 Then tell the user:
 
+**If this is a first-time setup:**
+
 > **Two manual steps required:**
 >
-> 1. Go to claude.ai and create a new Project named **Context Manager** (if it doesn't exist yet). In the **"What would you like this project to achieve?"** field, paste the pointer above.
+> 1. Go to claude.ai and create a new Project named **Context Manager**. In the **"What would you like this project to achieve?"** field, paste the pointer above.
 >
 > 2. In that same Project, go to **Project files** and upload `context-manager-setup.md`.
 >
 > Once both are in place, run **"bootstrap-project"** from the Context Manager Project for each project you want to register. Then run **"harvest-context"** weekly — from the Context Manager to harvest all projects at once, or from any individual project to harvest just that one.
+
+**If this is a re-initialization (the Context Manager Project already exists):**
+
+> **One manual step required:**
+>
+> Go to the **Context Manager** Project on claude.ai, open **Project files**, and replace the existing `context-manager-setup.md` with the new one. The Project instructions pointer does not need to change.
